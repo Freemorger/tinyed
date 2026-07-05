@@ -1,0 +1,35 @@
+# debug build with -g
+recipe debug { 
+    CC = gcc
+
+    INPUT = src/*.c 
+    OUTPUT = build/tinyed
+    
+    INCLUDE = include/
+    LINK = -lX11 
+    CFLAGS = -O0 -DDEBUG -g -Wall -Wextra
+
+    CMD .CC .CFLAGS -I .INCLUDE .INPUT -o .OUTPUT .LINK
+} end;
+
+# optimized build
+recipe release { 
+    CC = gcc
+
+    INPUT = src/*.c
+    OUTPUT = build/tinyed 
+    
+    INCLUDE = include/
+    LINK = -lX11
+    CFLAGS = -O3 -DNDEBUG -Wall -Wextra
+
+    CMD .CC .CFLAGS -I .INCLUDE .INPUT -o .OUTPUT .LINK
+} end;
+
+# cleans all objects and executable files 
+recipe clean {
+    OBJFILES = src/*.o build/tinyed 
+
+    CMD rm -f .OBJFILES
+} end;
+
