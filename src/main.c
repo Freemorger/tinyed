@@ -2,22 +2,20 @@
 #include "te_gfx.h"
 #include "te_dbg.h"
 #include "unistd.h"
+#include "app.h"
 #include <stdio.h>
 
 int main() {
-    gfx_init(800, 600);
+    printf(
+        "tinyed %s%s, built on %s %s for %s, detected compiler: %s\n",
+        TE_APP_VERSION, 
+        TE_APP_DEBUG ? " [debug]" : "", 
+        __DATE__, __TIME__, PLATFORM,
+        detect_compiler()
+    );
 
-    int running = 1;
-    while (running) {
-        TE_Event te = gfx_poll();
-
-        if (te.kind != TE_NoneEv) {
-            print_event_info(&te);
-            running = 0;
-        }
-    }
-
-    gfx_close();
+    te_app_init(640, 480);
+    te_app_run();
 
     return 0;
 }

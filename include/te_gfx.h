@@ -3,6 +3,8 @@
 #pragma once
 #include "events.h"
 
+typedef struct Gfx Gfx;
+
 typedef enum {
     TE_NoneBtn,
 

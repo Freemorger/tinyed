@@ -20,7 +20,7 @@ git clone https://github.com/Freemorger/tinyed.git
 cd tinyed 
 ```
 ## Building on ~real systems~ Linux/Freebsd/Macos 
-I use my simple build system `MAD` right here. [See more](https://github.com/Freemorger/mad)
+I use my simple build system `MAD` right here. [See more](https://github.com/Freemorger/mad)   
 Build it in debug:
 ```sh
 mad debug 

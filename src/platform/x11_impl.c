@@ -1,5 +1,6 @@
 // xlib (x11) implementation of app's GFX (see `include/te_gfx.h`)
 
+#include "te_dbg.h"
 #ifndef _WIN32
 
 #include <X11/X.h>
@@ -14,24 +15,27 @@
 #include "events.h"
 #include "te_gfx.h"
 
-// yeah, global state, whatever. trying to keep things tiny because its tinyed.
-Display* dpy = NULL;
-Window   w   = 0;
-GC       gc  = 0;
+struct Gfx {
+    Display* dpy;
+    Window w;
+    GC gc;
+};
+
+Gfx gfx = {0};
 
 void gfx_init(int width, int height) {
-    dpy = XOpenDisplay(NULL);
-    assert(dpy);
+    gfx.dpy = XOpenDisplay(NULL);
+    CHECK_NULL(gfx.dpy);
 
-    int blackColor = BlackPixel(dpy, DefaultScreen(dpy));
-    int whiteColor = WhitePixel(dpy, DefaultScreen(dpy));
+    int blackColor = BlackPixel(gfx.dpy, DefaultScreen(gfx.dpy));
+    int whiteColor = WhitePixel(gfx.dpy, DefaultScreen(gfx.dpy));
 
     int supported = false;
-    XkbSetDetectableAutoRepeat(dpy, True, &supported);
+    XkbSetDetectableAutoRepeat(gfx.dpy, True, &supported);
 
-    w = XCreateSimpleWindow(
-        dpy, 
-        DefaultRootWindow(dpy), 
+    gfx.w = XCreateSimpleWindow(
+        gfx.dpy, 
+        DefaultRootWindow(gfx.dpy), 
         0, // pos x 
         0, // pos y 
         width, 
@@ -42,73 +46,64 @@ void gfx_init(int width, int height) {
     );
 
     XSelectInput(
-        dpy,
-        w, 
+        gfx.dpy,
+        gfx.w, 
         ExposureMask | StructureNotifyMask |
         KeyReleaseMask | KeyPressMask | 
         ButtonReleaseMask | ButtonPressMask
     );
 
-    XMapWindow(dpy, w);
+    XMapWindow(gfx.dpy, gfx.w);
 
-    gc = XCreateGC(dpy, w, 0, NULL);
+    gfx.gc = XCreateGC(gfx.dpy, gfx.w, 0, NULL);
 
-    XSetForeground(dpy, gc, blackColor);
+    XSetForeground(gfx.dpy, gfx.gc, blackColor);
 
     // hope this font magically pops out..
     char* font_name        = "*dejavu sans-bold-r-*-*-*-220-*";
-    XFontStruct* font_info = XLoadQueryFont(dpy, font_name);
+    XFontStruct* font_info = XLoadQueryFont(gfx.dpy, font_name);
 
     // ..or just rely on default one 
     if (font_info == NULL) {
         fprintf(stderr, "Unrecognized font pattern. Falling back to 'fixed'.\n");
-        font_info = XLoadQueryFont(dpy, "fixed");
-        assert(font_info);
+        font_info = XLoadQueryFont(gfx.dpy, "fixed");
+        CHECK_NULL(font_info);
     }
-    XSetFont(dpy, gc, font_info->fid);
+    XSetFont(gfx.dpy, gfx.gc, font_info->fid);
 
-    XFlush(dpy);
-}
-
-void chk_dpy_wind() {
-    if (dpy == NULL) {
-        fprintf(stderr, "Display is NULL! Seems like it wasn't initialized.\n");
-        exit(1);
-    }
-    if (w == 0) {
-        fprintf(stderr, "Window ID is 0! Seems like it wasn't initialized.\n");
-        exit(1);
-    }
+    XFlush(gfx.dpy);
 }
 
 void gfx_close() {
-    if (dpy && w) 
-        XDestroyWindow(dpy, w);
+    if (gfx.dpy && gfx.w) 
+        XDestroyWindow(gfx.dpy, gfx.w);
 
-    if (dpy && gc) 
-        XFreeGC(dpy, gc);
+    if (gfx.dpy && gfx.gc) 
+        XFreeGC(gfx.dpy, gfx.gc);
 
-    if (dpy)
-        XCloseDisplay(dpy);
+    if (gfx.dpy)
+        XCloseDisplay(gfx.dpy);
 }
 
 void gfx_clear_wind() {
-    chk_dpy_wind();
-    XClearWindow(dpy, w);
+    CHECK_NULL(gfx.dpy);
+    CHECK_NULL(gfx.w);
+    XClearWindow(gfx.dpy, gfx.w);
 }
 
 TE_Event gfx_poll() {
-    chk_dpy_wind();
+    CHECK_NULL(gfx.dpy);
+    CHECK_NULL(gfx.w);
 
     TE_Event te = {0};
     te.kind = TE_NoneEv;
 
-    if (XPending(dpy) == 0) {
+    if (XPending(gfx.dpy) == 0) {
         return te;
     }
 
     XEvent xe;
-    XNextEvent(dpy, &xe);
+    XNextEvent(gfx.dpy, &xe);
 
     switch (xe.type) {
         case KeyPress: 
@@ -136,11 +131,12 @@ TE_Event gfx_poll() {
 }
 
 const char* gfx_keyc_to_str(unsigned int keycode, bool shift_pressed) {
-    chk_dpy_wind();
+    CHECK_NULL(gfx.dpy);
+    CHECK_NULL(gfx.w);
 
     int index = shift_pressed ? 1 : 0;
 
-    KeySym ks = XkbKeycodeToKeysym(dpy, keycode, 0, index);
+    KeySym ks = XkbKeycodeToKeysym(gfx.dpy, keycode, 0, index);
     
     if (ks == NoSymbol) {
         return "Unknown";

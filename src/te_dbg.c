@@ -37,6 +37,21 @@ void print_event_info(TE_Event* ev) {
     }
 }
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
+const char* detect_compiler() {
+    #if defined(__GNUC__) && defined(__VERSION__) && !defined(__clang__) 
+        return "GCC " __VERSION__;
+    #elif defined(__clang__) && defined(__VERSION__)
+        return "Clang " __VERSION__;
+    #elif defined(_MSC_FULL_VER)
+        return "MSVC " STR(_MSC_VER) " (" STR(_MSC_FULL_VER) ")";
+    #else
+        return "unknown";
+    #endif
+}
+
 const char* te_btn_to_str(TE_Button btn) {
     switch (btn) {
         case TE_NoneBtn: 
