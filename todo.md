@@ -1,5 +1,5 @@
 # now
-- `App` struct maybe
+- `TE_Key` enum maybe
 - first widget(s):
     - label
     - input field

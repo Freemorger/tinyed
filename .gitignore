@@ -1,2 +1,4 @@
-build/*
-!build/.gitkeep
+build/debug/*
+!build/debug/.gitkeep
+build/release/*
+!build/release/.gitkeep

@@ -20,6 +20,21 @@ git clone https://github.com/Freemorger/tinyed.git
 cd tinyed 
 ```
 ## Building on ~real systems~ Linux/Freebsd/Macos 
+### Via make
+I added makefile at some point which is identical (normally, if I won't forget anything) to mad by logic.
+Build it in debug:
+```sh
+make debug 
+```
+Or optimized, release:
+```sh
+make release 
+```
+Clean up before building again:
+```sh
+make clean
+```
+### Via `mad`
 I use my simple build system `MAD` right here. [See more](https://github.com/Freemorger/mad)   
 Build it in debug:
 ```sh

@@ -14,8 +14,8 @@ int main() {
         detect_compiler()
     );
 
-    te_app_init(640, 480);
-    te_app_run();
+    TE_App app = te_app_init(640, 480);
+    te_app_run(&app);
 
     return 0;
 }

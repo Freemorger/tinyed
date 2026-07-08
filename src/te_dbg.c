@@ -41,7 +41,9 @@ void print_event_info(TE_Event* ev) {
 #define STR(x) STR_HELPER(x)
 
 const char* detect_compiler() {
-    #if defined(__GNUC__) && defined(__VERSION__) && !defined(__clang__) 
+    #if defined(__TINYC__)
+        return "TCC";
+    #elif defined(__GNUC__) && defined(__VERSION__) && !defined(__clang__) 
         return "GCC " __VERSION__;
     #elif defined(__clang__) && defined(__VERSION__)
         return "Clang " __VERSION__;

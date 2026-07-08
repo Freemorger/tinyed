@@ -2,3 +2,4 @@
 -std=c11
 -xc
 -DDEBUG
+-Wno-unused-function

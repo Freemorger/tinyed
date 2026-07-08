@@ -1,8 +1,9 @@
 // xlib (x11) implementation of app's GFX (see `include/te_gfx.h`)
 
-#include "te_dbg.h"
+#include "utils/ds.h"
 #ifndef _WIN32
 
+#include "te_dbg.h"
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/XKBlib.h>
@@ -15,17 +16,24 @@
 #include "events.h"
 #include "te_gfx.h"
 
-struct Gfx {
+TE_QUEUE_DEFINE(TE_Event, TE_Queue_Event)
+TE_QUEUE_DEF_METHODS(TE_Event, TE_Queue_Event)
+
+static struct Gfx {
     Display* dpy;
     Window w;
     GC gc;
+    XIM xim;
+    XIC xic;
+
+    TE_Queue_Event ev_queue;
 };
 
 Gfx gfx = {0};
 
 void gfx_init(int width, int height) {
     gfx.dpy = XOpenDisplay(NULL);
-    CHECK_NULL(gfx.dpy);
+    CHECK_NULL(gfx.dpy); 
 
     int blackColor = BlackPixel(gfx.dpy, DefaultScreen(gfx.dpy));
     int whiteColor = WhitePixel(gfx.dpy, DefaultScreen(gfx.dpy));
@@ -44,6 +52,20 @@ void gfx_init(int width, int height) {
         blackColor, // border 
         whiteColor // bg 
     );
+    CHECK_NULL(gfx.w);
+
+    gfx.xim = XOpenIM(gfx.dpy, NULL, NULL, NULL);
+    CHECK_NULL(gfx.xim);
+
+    gfx.xic = XCreateIC(
+        gfx.xim,
+        XNInputStyle,
+        XIMPreeditNothing | XIMStatusNothing,
+        XNClientWindow, gfx.w,
+        XNFocusWindow, gfx.w,
+        NULL
+    );
+    CHECK_NULL(gfx.xic);
 
     XSelectInput(
         gfx.dpy,
@@ -98,6 +120,12 @@ TE_Event gfx_poll() {
     TE_Event te = {0};
     te.kind = TE_NoneEv;
 
+    if (gfx.ev_queue.len > 0) {
+        bool res = TE_Queue_Event_dequeue(&gfx.ev_queue, &te);
+        if (res) 
+            return te;
+    }
+
     if (XPending(gfx.dpy) == 0) {
         return te;
     }
@@ -106,7 +134,29 @@ TE_Event gfx_poll() {
     XNextEvent(gfx.dpy, &xe);
 
     switch (xe.type) {
-        case KeyPress: 
+        case KeyPress: {
+            TE_Event textev = {0};
+            textev.kind = TE_InputText;
+            textev.val.key.code = xe.xkey.keycode;
+
+            KeySym keysym;
+            Status status;
+
+            size_t len = Xutf8LookupString(
+                gfx.xic,
+                &xe.xkey,
+                textev.val.key.text, sizeof(textev.val.key.text),
+                &keysym, &status
+            );
+
+            if (status != XBufferOverflow && len < sizeof(textev.val.key.text))
+                textev.val.key.text[len] = '\0';
+
+            if (status == XLookupChars || status == XLookupBoth) {
+                TE_Queue_Event_enqueue(&gfx.ev_queue, textev);
+            }
+            // falthru
+        }
         case KeyRelease: {
             te.kind = xe.type == KeyRelease ? TE_KeyRelease : TE_KeyPress;
             te.val.key.code  = xe.xkey.keycode;

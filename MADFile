@@ -2,12 +2,12 @@
 recipe debug { 
     CC = gcc
 
-    INPUT = src/*.c src/editor/*.c src/platform/*.c 
-    OUTPUT = build/tinyed
+    INPUT = src/*.c src/editor/*.c src/platform/*.c src/utils/*.c
+    OUTPUT = build/debug/tinyed
     
     INCLUDE = include/
     LINK = -lX11 
-    CFLAGS = -O0 -DDEBUG -g -Wall -Wextra -std=c11
+    CFLAGS = -O0 -DDEBUG -g -Wall -Wextra -fsanitize=address,undefined -std=c11 -Wno-unused-function
 
     CMD .CC .CFLAGS -I .INCLUDE .INPUT -o .OUTPUT .LINK
 } end;
@@ -16,19 +16,19 @@ recipe debug {
 recipe release { 
     CC = gcc
 
-    INPUT = src/*.c src/editor/*.c src/platform/*.c 
-    OUTPUT = build/tinyed 
+    INPUT = src/*.c src/editor/*.c src/platform/*.c src/utils/*.c
+    OUTPUT = build/release/tinyed 
     
     INCLUDE = include/
     LINK = -lX11
-    CFLAGS = -O3 -DNDEBUG -Wall -Wextra -std=c11
+    CFLAGS = -O3 -DNDEBUG -Wall -Wextra -std=c11 -Wno-unused-function
 
     CMD .CC .CFLAGS -I .INCLUDE .INPUT -o .OUTPUT .LINK
 } end;
 
 # cleans all objects and executable files 
 recipe clean {
-    OBJFILES = src/*.o build/tinyed 
+    OBJFILES = src/*.o build/*.o build/debug/tinyed build/release/tinyed
 
     CMD rm -f .OBJFILES
 } end;
