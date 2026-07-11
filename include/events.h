@@ -1,6 +1,7 @@
 // Abstraction over system events
 
 #pragma once
+#include "gfx/keys.h"
 #include "stdbool.h"
 #include <uchar.h>
 
@@ -21,7 +22,7 @@ typedef struct {
     TE_EventKind kind;
     union {
         struct {
-            unsigned int code;
+            TE_Keys      key;
             bool         ctrl;
             bool         shift;
             bool         alt;

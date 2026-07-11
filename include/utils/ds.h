@@ -33,6 +33,8 @@
         size_t     tail;\
     } name;\
 
+// TODO: maybe methods for vec if needed
+
 /// Define methods for queue type `name` with element type `elem_type`
 #define TE_QUEUE_DEF_METHODS(elem_type, name) \
     static void name##_grow(name* q) {\

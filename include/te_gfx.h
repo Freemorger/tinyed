@@ -2,6 +2,7 @@
 
 #pragma once
 #include "events.h"
+#include "gfx/keys.h"
 
 #ifdef _WIN32
     #define TE_BACKEND_WIN32
@@ -27,6 +28,4 @@ void gfx_close();
 void gfx_clear_wind();
 TE_Event gfx_poll();
 
-const char* gfx_keyc_to_str(unsigned int keycode, bool shift_pressed);
-unsigned int gfx_keyc_from_str(char* key_name);
 TE_Button to_gfx_btn(unsigned int btn);

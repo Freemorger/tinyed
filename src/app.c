@@ -1,10 +1,10 @@
 #include "editor/util.h"
 #include "app.h"
 #include "events.h"
+#include "gfx/keys.h"
 #include "te_dbg.h"
 #include "te_gfx.h"
 #include <bits/time.h>
-#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
@@ -36,9 +36,8 @@ void te_app_run(TE_App* app) {
         while (te.kind != TE_NoneEv) {
             switch (te.kind) {
                 case TE_KeyPress: {
-                    bool shift_pressed = te.val.key.shift;
                     DBG_PRINT("Pressed key %s\n", 
-                        gfx_keyc_to_str(te.val.key.code, shift_pressed)
+                        TE_Key_names[te.val.key.key]
                     );
                     break;
                 }

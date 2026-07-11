@@ -3,12 +3,14 @@ recipe debug {
     CC = gcc
 
     INPUT = src/*.c src/editor/*.c src/platform/*.c src/utils/*.c
+    OUTDIR = build/debug
     OUTPUT = build/debug/tinyed
     
     INCLUDE = include/
     LINK = -lX11 
     CFLAGS = -O0 -DDEBUG -g -Wall -Wextra -fsanitize=address,undefined -std=c11 -Wno-unused-function
 
+    CMD mkdir -p .OUTDIR 
     CMD .CC .CFLAGS -I .INCLUDE .INPUT -o .OUTPUT .LINK
 } end;
 
@@ -17,12 +19,14 @@ recipe release {
     CC = gcc
 
     INPUT = src/*.c src/editor/*.c src/platform/*.c src/utils/*.c
+    OUTDIR = build/release
     OUTPUT = build/release/tinyed 
-    
+
     INCLUDE = include/
     LINK = -lX11
     CFLAGS = -O3 -DNDEBUG -Wall -Wextra -std=c11 -Wno-unused-function
 
+    CMD mkdir -p .OUTDIR
     CMD .CC .CFLAGS -I .INCLUDE .INPUT -o .OUTPUT .LINK
 } end;
 

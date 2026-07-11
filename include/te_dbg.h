@@ -45,5 +45,9 @@
 #endif
 
 void print_event_info(TE_Event* ev);
+
 const char* detect_compiler();
+const char* te_backend_name();
+const char* detect_arch();
+
 const char* te_btn_to_str(TE_Button btn);

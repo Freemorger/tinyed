@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "events.h" 
+#include "gfx/keys.h"
 #include "te_gfx.h"
 #include "te_dbg.h"
 
@@ -16,7 +17,7 @@ void print_event_info(TE_Event* ev) {
             printf(
                 "%s key %s; shift = %d, ctrl = %d, alt = %d\n",
                 ev->kind == TE_KeyRelease ? "Released" : "Pressed",
-                gfx_keyc_to_str(ev->val.key.code, shift),
+                TE_Key_names[ev->val.key.key],
                 shift, ev->val.key.ctrl, ev->val.key.alt
             );
             break;
@@ -49,6 +50,34 @@ const char* detect_compiler() {
         return "Clang " __VERSION__;
     #elif defined(_MSC_FULL_VER)
         return "MSVC " STR(_MSC_VER) " (" STR(_MSC_FULL_VER) ")";
+    #else
+        return "unknown";
+    #endif
+}
+
+const char* te_backend_name() {
+    #if defined(TE_BACKEND_X11)
+        return "X11";
+    #elif defined(TE_BACKEND_WIN32)
+        return "Win32 API";
+    #else 
+        return "unknown";
+    #endif
+}
+
+const char* detect_arch() {
+    #if defined(__x86_64__) || defined(_M_X64)
+        return "x86_64";
+    #elif defined(__i386__) || defined(_M_IX86)
+        return "i386";
+    #elif defined(__aarch64__) || defined(_M_ARM64)
+        return "aarch64";
+    #elif defined(__arm__) || defined(_M_ARM)
+        return "aarch32";
+    #elif defined(__mips__)
+        return "mips";
+    #elif defined(__powerpc__) || defined(_M_PPC)
+        return "PowerPC";
     #else
         return "unknown";
     #endif
