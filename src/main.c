@@ -7,7 +7,7 @@
 
 int main() {
     printf(
-        "tinyed %s%s, built on %s %s for %s (%s, %s), detected compiler: %s\n",
+        "tinyed %s%s, built on %s %s for %s (%s; %s), detected compiler: %s\n",
         TE_APP_VERSION, 
         TE_APP_DEBUG ? " [debug]" : "", 
         __DATE__, __TIME__, PLATFORM,

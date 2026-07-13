@@ -14,7 +14,7 @@
                 __DATE__, __TIME__, \
                 #ptr, __FILE__, __func__, __LINE__\
             );\
-            exit(1);\
+            exit(EXIT_FAILURE);\
         } \
     } while (0)
 

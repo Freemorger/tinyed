@@ -1,6 +1,6 @@
 // xlib (x11) implementation of app's GFX (see `include/te_gfx.h`)
 
-#include "te_dbg.h"
+#include "te_gfx.h"
 
 #ifdef TE_BACKEND_X11
 
@@ -9,22 +9,29 @@
 #include <X11/XKBlib.h>
 #include <X11/keysym.h>
 #include <X11/extensions/XKBstr.h>
+#include <X11/Xft/Xft.h>
+#include <fontconfig/fontconfig.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include "events.h"
-#include "te_gfx.h"
 #include "utils/ds.h"
+#include "te_dbg.h"
 
 TE_QUEUE_DEFINE(TE_Event, TE_Queue_Event)
 TE_QUEUE_DEF_METHODS(TE_Event, TE_Queue_Event)
 
 struct Gfx {
     Display* dpy;
-    Window w;
-    GC gc;
+    Window   w;
+    GC       gc;
+    
+    XftDraw* xft_draw;
+    XftFont* font;
+    XftColor text_color;
+
     XIM xim;
     XIC xic;
 
@@ -81,19 +88,41 @@ void gfx_init(int width, int height) {
 
     gfx.gc = XCreateGC(gfx.dpy, gfx.w, 0, NULL);
 
+    gfx.xft_draw = XftDrawCreate(
+        gfx.dpy,
+        gfx.w,
+        DefaultVisual(gfx.dpy, DefaultScreen(gfx.dpy)),
+        DefaultColormap(gfx.dpy, DefaultScreen(gfx.dpy))
+    );
+
+    CHECK_NULL(gfx.xft_draw);
+
     XSetForeground(gfx.dpy, gfx.gc, blackColor);
 
-    // hope this font magically pops out..
-    char* font_name        = "*dejavu sans-bold-r-*-*-*-220-*";
-    XFontStruct* font_info = XLoadQueryFont(gfx.dpy, font_name);
+    gfx.font = XftFontOpen(
+        gfx.dpy,
+        DefaultScreen(gfx.dpy),
+        XFT_FAMILY, XftTypeString, "sans-serif",
+        XFT_SIZE, XftTypeDouble, 16.0,
+        NULL
+    );
 
-    // ..or just rely on default one 
-    if (font_info == NULL) {
-        fprintf(stderr, "Unrecognized font pattern. Falling back to 'fixed'.\n");
-        font_info = XLoadQueryFont(gfx.dpy, "fixed");
-        CHECK_NULL(font_info);
-    }
-    XSetFont(gfx.dpy, gfx.gc, font_info->fid);
+    CHECK_NULL(gfx.font);
+
+    XRenderColor black = {
+        .red = 0,
+        .green = 0,
+        .blue = 0,
+        .alpha = 65535
+    };
+
+    XftColorAllocValue(
+        gfx.dpy,
+        DefaultVisual(gfx.dpy, DefaultScreen(gfx.dpy)),
+        DefaultColormap(gfx.dpy, DefaultScreen(gfx.dpy)),
+        &black,
+        &gfx.text_color
+    );
 
     XFlush(gfx.dpy);
 }
@@ -291,6 +320,25 @@ TE_Button to_gfx_btn(unsigned int btn) {
         default:
             return TE_NoneBtn;
     } 
+}
+
+/// Draw a string.
+void gfx_draw_string(int x, int y, char* text, size_t len) {
+    XftDrawStringUtf8(
+        gfx.xft_draw,
+        &gfx.text_color,
+        gfx.font,
+        x,
+        y,
+        (FcChar8*)text,
+        len
+    );
+
+    XFlush(gfx.dpy);
+}
+
+void gfx_flush() {
+    XFlush(gfx.dpy);
 }
 
 #endif

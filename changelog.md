@@ -1,3 +1,6 @@
-v0.0.4:
-- added debug info about backend and target
-- `TE_Keys` enum abstraction
+v0.0.5:
+- working on widgets
+- removed `MAD`
+- `Xft` in x11 backend for fonts
+- `TE_String` (vec of chars)
+- methods for `TE_Vec`

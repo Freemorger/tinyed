@@ -1,6 +1,5 @@
 # now
+- get rid of global state in x11 backend code
 - first widget(s):
-    - label
     - input field
 # later
-- use xft for fonts on x11 instead (and create font stuff)

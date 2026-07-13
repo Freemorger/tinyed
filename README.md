@@ -21,7 +21,6 @@ cd tinyed
 ```
 ## Building on ~real systems~ Linux/Freebsd/Macos 
 ### Via make
-I added makefile at some point which is identical (normally, if I won't forget anything) to mad by logic.
 Build it in debug:
 ```sh
 make debug 
@@ -34,19 +33,12 @@ Clean up before building again:
 ```sh
 make clean
 ```
-### Via `mad`
-I use my simple build system `MAD` right here. [See more](https://github.com/Freemorger/mad)   
-Build it in debug:
-```sh
-mad debug 
-```
-Or optimized, release:
-```sh
-mad release
-```
-Clean up before building again:
-```sh
-mad clean
-```
 ## Building on Windows 
 TBD
+## Development
+On linux (and maybe some other systems like macos/freebsd perhaps), to make LSP (clangd) 
+work during development, you can run bear and make it generate compile commands:
+```sh
+make clean 
+bear -- make
+```

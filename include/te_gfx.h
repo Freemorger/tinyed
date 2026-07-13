@@ -3,6 +3,7 @@
 #pragma once
 #include "events.h"
 #include "gfx/keys.h"
+#include <stddef.h>
 
 #ifdef _WIN32
     #define TE_BACKEND_WIN32
@@ -26,6 +27,9 @@ typedef enum {
 void gfx_init(int width, int height);
 void gfx_close();
 void gfx_clear_wind();
+void gfx_flush();
 TE_Event gfx_poll();
 
 TE_Button to_gfx_btn(unsigned int btn);
+
+void gfx_draw_string(int x, int y, char* text, size_t len);
