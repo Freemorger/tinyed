@@ -1,6 +1,6 @@
-v0.0.5:
-- working on widgets
-- removed `MAD`
-- `Xft` in x11 backend for fonts
-- `TE_String` (vec of chars)
-- methods for `TE_Vec`
+v0.0.6:
+- moved detect compiler/arch/whatever funcs to header and made them `static inline`
+- big refactor
+- fixed memory leaks
+- extracted keylist for less compiler warnings
+- changed `TE_Event.val.text.text` size to 64 bytes

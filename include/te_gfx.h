@@ -4,32 +4,15 @@
 #include "events.h"
 #include "gfx/keys.h"
 #include <stddef.h>
+#include "platform/gfxdefs.h"
+#include "editor/te_button.h"
 
-#ifdef _WIN32
-    #define TE_BACKEND_WIN32
-#else 
-    #define TE_BACKEND_X11
-#endif
+Gfx gfx_init(int width, int height);
+void gfx_close(Gfx* gfx);
+void gfx_clear_wind(Gfx* gfx);
+void gfx_flush(Gfx* gfx);
+TE_Event gfx_poll(Gfx* gfx);
 
-typedef struct Gfx Gfx;
+TE_Button to_gfx_btn(Gfx* gfx, unsigned int btn);
 
-typedef enum {
-    TE_NoneBtn,
-
-    TE_LeftBtn,
-    TE_MiddleBtn,
-    TE_RightBtn,
-    
-    TE_WheelUp,
-    TE_WheelDown,
-} TE_Button;
-
-void gfx_init(int width, int height);
-void gfx_close();
-void gfx_clear_wind();
-void gfx_flush();
-TE_Event gfx_poll();
-
-TE_Button to_gfx_btn(unsigned int btn);
-
-void gfx_draw_string(int x, int y, char* text, size_t len);
+void gfx_draw_string(Gfx* gfx, int x, int y, char* text, size_t len);

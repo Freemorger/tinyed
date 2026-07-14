@@ -3,7 +3,8 @@ CC = gcc
 INPUT = $(wildcard src/*.c) \
         $(wildcard src/editor/*.c) \
         $(wildcard src/platform/*.c) \
-        $(wildcard src/utils/*.c)
+        $(wildcard src/utils/*.c) \
+		$(wildcard src/gfx/*.c)
 
 INCLUDE = include
 LINK = -lX11 -lXft -lfontconfig

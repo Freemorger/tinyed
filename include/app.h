@@ -2,10 +2,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include "editor/widget.h"
+#include "platform/gfxdefs.h"
 #include "te_gfx.h"
 #include "utils/ds.h"
 
-#define TE_APP_VERSION "v0.0.5"
+#define TE_APP_VERSION "v0.0.7"
 
 #ifdef DEBUG 
     #define TE_APP_DEBUG true
@@ -19,6 +20,7 @@ TE_VEC_DEF_METHODS(TE_Widget*, TE_VecP_Widget)
 typedef struct TE_App {
     TE_VecP_Widget widgets;
     bool           running;
+    Gfx            gfx;
 } TE_App;
 
 TE_App te_app_init(int width, int height);

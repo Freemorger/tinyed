@@ -1,5 +1,6 @@
 #pragma once
 #include "events.h"
+#include "platform/gfxdefs.h"
 #include "utils/ds.h"
 #include <stdbool.h>
 
@@ -7,7 +8,7 @@
 typedef struct TE_Widget {
     int x, y, w, h;
 
-    void (*draw)(struct TE_Widget*); 
+    void (*draw)(Gfx* gfx, struct TE_Widget*); 
     void (*event)(struct TE_Widget*, TE_Event*);
     void (*dtor)(struct TE_Widget*); // destructor
 

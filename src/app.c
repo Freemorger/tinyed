@@ -10,11 +10,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include "platform/gfxdefs.h"
 
 TE_App te_app_init(int w, int h) {
-    gfx_init(w, h);
+    Gfx gfx = gfx_init(w, h);
 
     TE_App app = {0};
+    app.gfx = gfx;
 
     // TODO: prepare basic widgets
 
@@ -37,9 +39,9 @@ void te_app_run(TE_App* app) {
         struct timespec start_time;
         clock_gettime(CLOCK_MONOTONIC, &start_time);
 
-        gfx_clear_wind();
+        gfx_clear_wind(&app->gfx);
         
-        TE_Event te = gfx_poll();
+        TE_Event te = gfx_poll(&app->gfx);
 
         while (te.kind != TE_NoneEv) {
             switch (te.kind) {
@@ -67,17 +69,17 @@ void te_app_run(TE_App* app) {
             
             // TODO: send event to widget if needed
 
-            te = gfx_poll();
+            te = gfx_poll(&app->gfx);
         }
 
         for (size_t i = 0; i < app->widgets.len; i++) {
             TE_Widget* widget = app->widgets.data[i];
             if (widget->visible) {
-                widget->draw(widget);
+                widget->draw(&app->gfx, widget);
             }
         }
 
-        gfx_flush(); 
+        gfx_flush(&app->gfx); 
 
         struct timespec end_time;
         clock_gettime(CLOCK_MONOTONIC, &end_time);
@@ -98,5 +100,7 @@ void te_app_run(TE_App* app) {
         }
     }
 
-    gfx_close();
+    TE_VecP_Widget_free(&app->widgets);
+
+    gfx_close(&app->gfx);
 }

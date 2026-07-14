@@ -8,12 +8,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-static void te_label_draw(TE_Widget* widget) {
+static void te_label_draw(Gfx* gfx, TE_Widget* widget) {
     CHECK_NULL(widget);
 
     TE_Label* lbl = container_of(widget, TE_Label, widget);
 
     gfx_draw_string(
+        gfx,
         widget->x, 
         widget->y, 
         lbl->text.data, 
@@ -28,6 +29,8 @@ static void te_label_dtor(TE_Widget* widget) {
     TE_Label* lbl = container_of(widget, TE_Label, widget);
 
     te_label_free(lbl);
+
+    free(lbl);
 }
 
 /// Label widget event handler

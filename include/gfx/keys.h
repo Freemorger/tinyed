@@ -54,10 +54,4 @@ typedef enum {
     TE_Key_Count
 } TE_Keys;
 
-#define X(member, string) string,
-
-static const char* TE_Key_names[] = {
-    TE_KEYLIST
-};
-
-#undef X
+extern const char* TE_Key_names[];

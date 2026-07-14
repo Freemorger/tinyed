@@ -19,28 +19,11 @@
 #include "events.h"
 #include "utils/ds.h"
 #include "te_dbg.h"
+#include "platform/gfxdefs.h"
 
-TE_QUEUE_DEFINE(TE_Event, TE_Queue_Event)
-TE_QUEUE_DEF_METHODS(TE_Event, TE_Queue_Event)
+Gfx gfx_init(int width, int height) {
+    Gfx gfx = {0};
 
-struct Gfx {
-    Display* dpy;
-    Window   w;
-    GC       gc;
-    
-    XftDraw* xft_draw;
-    XftFont* font;
-    XftColor text_color;
-
-    XIM xim;
-    XIC xic;
-
-    TE_Queue_Event ev_queue;
-};
-
-Gfx gfx = {0};
-
-void gfx_init(int width, int height) {
     gfx.dpy = XOpenDisplay(NULL);
     CHECK_NULL(gfx.dpy); 
 
@@ -125,30 +108,59 @@ void gfx_init(int width, int height) {
     );
 
     XFlush(gfx.dpy);
+
+    return gfx;
 }
 
-void gfx_close() {
-    if (gfx.dpy && gfx.w) 
-        XDestroyWindow(gfx.dpy, gfx.w);
+/// Destroys gfx and everything from inside 
+void gfx_close(Gfx* gfx) {
+    CHECK_NULL(gfx);
 
-    if (gfx.dpy && gfx.gc) 
-        XFreeGC(gfx.dpy, gfx.gc);
+    if (gfx->xic)
+        XDestroyIC(gfx->xic);
 
-    if (gfx.dpy)
-        XCloseDisplay(gfx.dpy);
+    if (gfx->xim)
+        XCloseIM(gfx->xim);
+
+    if (gfx->xft_draw)
+        XftDrawDestroy(gfx->xft_draw);
+
+    if (gfx->font)
+        XftFontClose(gfx->dpy, gfx->font);
+
+    if (gfx->dpy && gfx->text_color.pixel)
+        XftColorFree(
+            gfx->dpy,
+            DefaultVisual(gfx->dpy, DefaultScreen(gfx->dpy)),
+            DefaultColormap(gfx->dpy, DefaultScreen(gfx->dpy)),
+            &gfx->text_color
+        );
+
+    if (gfx->dpy && gfx->gc)
+        XFreeGC(gfx->dpy, gfx->gc);
+
+    if (gfx->dpy && gfx->w)
+        XDestroyWindow(gfx->dpy, gfx->w);
+
+    if (gfx->dpy)
+        XCloseDisplay(gfx->dpy);
+
+    TE_Queue_Event_free(&gfx->ev_queue);
 }
 
-void gfx_clear_wind() {
-    CHECK_NULL(gfx.dpy);
-    CHECK_NULL(gfx.w);
-    XClearWindow(gfx.dpy, gfx.w);
+void gfx_clear_wind(Gfx* gfx) {
+    CHECK_NULL(gfx);
+    CHECK_NULL(gfx->dpy);
+    CHECK_NULL(gfx->w);
+    XClearWindow(gfx->dpy, gfx->w);
 }
 
 
-static TE_Keys xkb_keycode_to_te(unsigned int keycode) {
-    CHECK_NULL(gfx.dpy);
+static TE_Keys xkb_keycode_to_te(Gfx* gfx, unsigned int keycode) {
+    CHECK_NULL(gfx);
+    CHECK_NULL(gfx->dpy);
 
-    KeySym base_sym = XkbKeycodeToKeysym(gfx.dpy, keycode, 0, 0);
+    KeySym base_sym = XkbKeycodeToKeysym(gfx->dpy, keycode, 0, 0);
 
     switch (base_sym) {
     #define X(xkey, tekey) case xkey: return tekey;
@@ -237,37 +249,38 @@ static TE_Keys xkb_keycode_to_te(unsigned int keycode) {
 }
 
 
-TE_Event gfx_poll() {
-    CHECK_NULL(gfx.dpy);
-    CHECK_NULL(gfx.w);
+TE_Event gfx_poll(Gfx* gfx) {
+    CHECK_NULL(gfx);
+    CHECK_NULL(gfx->dpy);
+    CHECK_NULL(gfx->w);
 
     TE_Event te = {0};
     te.kind = TE_NoneEv;
 
-    if (gfx.ev_queue.len > 0) {
-        bool res = TE_Queue_Event_dequeue(&gfx.ev_queue, &te);
+    if (gfx->ev_queue.len > 0) {
+        bool res = TE_Queue_Event_dequeue(&gfx->ev_queue, &te);
         if (res) 
             return te;
     }
 
-    if (XPending(gfx.dpy) == 0) {
+    if (XPending(gfx->dpy) == 0) {
         return te;
     }
 
     XEvent xe;
-    XNextEvent(gfx.dpy, &xe);
+    XNextEvent(gfx->dpy, &xe);
 
     switch (xe.type) {
         case KeyPress: {
             TE_Event textev = {0};
             textev.kind = TE_InputText;
-            textev.val.key.key = xkb_keycode_to_te(xe.xkey.keycode);
+            textev.val.key.key = xkb_keycode_to_te(gfx, xe.xkey.keycode);
 
             KeySym keysym;
             Status status;
 
             size_t len = Xutf8LookupString(
-                gfx.xic,
+                gfx->xic,
                 &xe.xkey,
                 textev.val.key.text, sizeof(textev.val.key.text),
                 &keysym, &status
@@ -277,13 +290,13 @@ TE_Event gfx_poll() {
                 textev.val.key.text[len] = '\0';
 
             if (status == XLookupChars || status == XLookupBoth) {
-                TE_Queue_Event_enqueue(&gfx.ev_queue, textev);
+                TE_Queue_Event_enqueue(&gfx->ev_queue, textev);
             }
             /* fall through */
         }
         case KeyRelease: {
             te.kind = xe.type == KeyRelease ? TE_KeyRelease : TE_KeyPress;
-            te.val.key.key   = xkb_keycode_to_te(xe.xkey.keycode);
+            te.val.key.key   = xkb_keycode_to_te(gfx, xe.xkey.keycode);
             te.val.key.shift = (xe.xkey.state & ShiftMask);
             te.val.key.ctrl  = (xe.xkey.state & ControlMask);
             te.val.key.alt   = (xe.xkey.state & Mod1Mask);
@@ -304,8 +317,9 @@ TE_Event gfx_poll() {
     return te;
 }
 
-/// Convert system button to "normalized" button idx:
-TE_Button to_gfx_btn(unsigned int btn) {
+/// Convert system button to "normalized" button idx
+/// Gfx could be NULL for x11 backend 
+TE_Button to_gfx_btn(Gfx* gfx, unsigned int btn) {
     switch (btn) {
         case Button1:
             return TE_LeftBtn;
@@ -322,23 +336,29 @@ TE_Button to_gfx_btn(unsigned int btn) {
     } 
 }
 
-/// Draw a string.
-void gfx_draw_string(int x, int y, char* text, size_t len) {
+/// Draw an UTF-8 string.
+void gfx_draw_string(Gfx* gfx, int x, int y, char* text, size_t len) {
+    CHECK_NULL(gfx);
+    CHECK_NULL(gfx->xft_draw);
+    CHECK_NULL(&gfx->text_color);
+    CHECK_NULL(gfx->font);
+
     XftDrawStringUtf8(
-        gfx.xft_draw,
-        &gfx.text_color,
-        gfx.font,
+        gfx->xft_draw,
+        &gfx->text_color,
+        gfx->font,
         x,
         y,
         (FcChar8*)text,
         len
     );
 
-    XFlush(gfx.dpy);
+    XFlush(gfx->dpy);
 }
 
-void gfx_flush() {
-    XFlush(gfx.dpy);
+void gfx_flush(Gfx* gfx) {
+    CHECK_NULL(gfx);
+    XFlush(gfx->dpy);
 }
 
 #endif

@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 #include "events.h"
-#include "te_gfx.h"
 
 /// Checks value for being zero and exits if its 0
 #define CHECK_NULL(ptr) \
@@ -44,10 +43,38 @@
     #define PLATFORM "Unknown"
 #endif
 
-void print_event_info(TE_Event* ev);
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
 
-const char* detect_compiler();
-const char* te_backend_name();
-const char* detect_arch();
+static inline const char* detect_compiler() {
+    #if defined(__TINYC__)
+        return "TCC";
+    #elif defined(__GNUC__) && defined(__VERSION__) && !defined(__clang__) 
+        return "GCC " __VERSION__;
+    #elif defined(__clang__) && defined(__VERSION__)
+        return __VERSION__; // already contains clang 
+    #elif defined(_MSC_FULL_VER)
+        return "MSVC " STR(_MSC_VER) " (" STR(_MSC_FULL_VER) ")";
+    #else
+        return "unknown";
+    #endif
+}
 
-const char* te_btn_to_str(TE_Button btn);
+static inline const char* detect_arch() {
+    #if defined(__x86_64__) || defined(_M_X64)
+        return "x86_64";
+    #elif defined(__i386__) || defined(_M_IX86)
+        return "i386";
+    #elif defined(__aarch64__) || defined(_M_ARM64)
+        return "aarch64";
+    #elif defined(__arm__) || defined(_M_ARM)
+        return "aarch32";
+    #elif defined(__mips__)
+        return "mips";
+    #elif defined(__powerpc__) || defined(_M_PPC)
+        return "PowerPC";
+    #else
+        return "unknown";
+    #endif
+}
+

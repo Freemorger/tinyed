@@ -3,7 +3,6 @@
 #pragma once
 #include "gfx/keys.h"
 #include "stdbool.h"
-#include <uchar.h>
 
 typedef enum {
     TE_NoneEv,
@@ -26,7 +25,7 @@ typedef struct {
             bool         ctrl;
             bool         shift;
             bool         alt;
-            char         text[32]; /// only for InputText
+            char         text[64]; /// only for InputText
         } key;
 
         struct {
