@@ -9,7 +9,7 @@ typedef enum {
     
     TE_WheelUp,
     TE_WheelDown,
-} TE_Button;
+} TE_MouseBtn;
 
-const char* te_btn_to_str(TE_Button btn);
+const char* te_btn_to_str(TE_MouseBtn btn);
 

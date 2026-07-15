@@ -8,7 +8,7 @@ The goal for this editor is to be super tiny without being useless.
     - Fedora/rhel:  `sudo dnf install libX11-devel`
     - Arch-based:   `sudo pacman -S xorgproto`
     - Freebsd:      `sudo pkg install libX11`
-    - Macos:        `brew install --cask xquartz`
+    - Macos:        `brew install --cask xquartz` (also export xquartz' xlib and stuff headers)
 - Win32 api deps (Windows)
     - TBD 
 2. Runtime deps 
@@ -21,6 +21,10 @@ cd tinyed
 ```
 ## Building on ~real systems~ Linux/Freebsd/Macos 
 ### Via make
+> [!NOTE]
+> GNU make is expected. On Linux and macOS systems, its usually just `make`. 
+However on freebsd and some others it's `gmake`  
+
 Build it in debug:
 ```sh
 make debug 
@@ -33,6 +37,7 @@ Clean up before building again:
 ```sh
 make clean
 ```
+!
 ## Building on Windows 
 TBD
 ## Development

@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <stddef.h>
-#include "editor/widget.h"
+#include "widgets/widget.h"
 #include "platform/gfxdefs.h"
 #include "te_gfx.h"
 #include "utils/ds.h"

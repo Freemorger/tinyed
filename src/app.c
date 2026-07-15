@@ -1,6 +1,6 @@
 #include "editor/util.h"
 #include "app.h"
-#include "editor/widget.h"
+#include "widgets/widget.h"
 #include "events.h"
 #include "gfx/keys.h"
 #include "te_dbg.h"
@@ -11,6 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include "platform/gfxdefs.h"
+#include "widgets/te_label.h"
 
 TE_App te_app_init(int w, int h) {
     Gfx gfx = gfx_init(w, h);

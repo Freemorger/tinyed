@@ -20,6 +20,7 @@
 #include "utils/ds.h"
 #include "te_dbg.h"
 #include "platform/gfxdefs.h"
+#include "gfx/te_mousebtn.h"
 
 Gfx gfx_init(int width, int height) {
     Gfx gfx = {0};
@@ -319,7 +320,7 @@ TE_Event gfx_poll(Gfx* gfx) {
 
 /// Convert system button to "normalized" button idx
 /// Gfx could be NULL for x11 backend 
-TE_Button to_gfx_btn(Gfx* gfx, unsigned int btn) {
+TE_MouseBtn to_gfx_btn(Gfx* gfx, unsigned int btn) {
     switch (btn) {
         case Button1:
             return TE_LeftBtn;

@@ -1,4 +1,4 @@
-#include "editor/widget.h"
+#include "widgets/widget.h"
 #include "events.h"
 #include "te_dbg.h"
 #include "te_gfx.h"
@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "widgets/te_label.h"
 
 static void te_label_draw(Gfx* gfx, TE_Widget* widget) {
     CHECK_NULL(widget);
