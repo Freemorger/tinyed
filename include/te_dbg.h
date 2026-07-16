@@ -17,12 +17,31 @@
         } \
     } while (0)
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 #ifdef DEBUG
+    #include <stdio.h>
+    #include "utils/etc.h"
+
     #define DBG_PRINT(...) \
             printf(__VA_ARGS__);
+
+    #define DBG(x) \
+        _Generic((x), \
+            int:    printf("%s, %s:%d: %s = %d\n", __FILE__, __func__, __LINE__, #x, (int)(x)), \
+            size_t: printf("%s, %s:%d: %s = %zu\n", __FILE__, __func__, __LINE__, #x, (size_t)(x)), \
+            double: printf("%s, %s:%d: %s = %f\n", __FILE__, __func__, __LINE__, #x, (double)(x)), \
+            char*:  printf("%s, %s:%d: %s = %s\n", __FILE__, __func__, __LINE__, #x, (char*)(x)), \
+            default: printf("%s, %s:%d: %s = %p\n", __FILE__, __func__, __LINE__, #x, (void*)(x)) \
+        )
+
 #else 
     #define DBG_PRINT(...) ((void)0)
+    #define DBG(...) ((void)0) 
 #endif
+
+
 
 #if defined(_WIN32)
     /* Windows (32-bit or 64-bit) */
@@ -43,8 +62,6 @@
     #define PLATFORM "Unknown"
 #endif
 
-#define STR_HELPER(x) #x
-#define STR(x) STR_HELPER(x)
 
 static inline const char* detect_compiler() {
     #if defined(__TINYC__)

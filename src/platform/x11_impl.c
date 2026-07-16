@@ -357,6 +357,19 @@ void gfx_draw_string(Gfx* gfx, int x, int y, char* text, size_t len) {
     XFlush(gfx->dpy);
 }
 
+void gfx_draw_rect(Gfx* gfx, int x, int y, unsigned int w, unsigned int h) {
+    CHECK_NULL(gfx);
+    CHECK_NULL(gfx->dpy);
+    CHECK_NULL(gfx->gc);
+
+    XDrawRectangle(
+        gfx->dpy, 
+        gfx->w, 
+        gfx->gc, 
+        x, y, w, h
+    );
+}
+
 void gfx_flush(Gfx* gfx) {
     CHECK_NULL(gfx);
     XFlush(gfx->dpy);

@@ -25,7 +25,8 @@ typedef struct {
             bool         ctrl;
             bool         shift;
             bool         alt;
-            char         text[64]; /// only for InputText
+            char         text[64]; /// only for InputText 
+                                   /// TODO: maybe TE_String instead, though its dynamic..
         } key;
 
         struct {

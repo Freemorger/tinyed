@@ -10,6 +10,7 @@
 #include "widgets/te_label.h"
 
 static void te_label_draw(Gfx* gfx, TE_Widget* widget) {
+    CHECK_NULL(gfx);
     CHECK_NULL(widget);
 
     TE_Label* lbl = container_of(widget, TE_Label, widget);

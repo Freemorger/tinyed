@@ -1,11 +1,9 @@
-v0.0.7:
-- extracted `TE_String` type 
-- `STR_FMT`, `STR_ARG` macros
-- changed make's used compiler to `cc` by default
-- changed makefile links for better compatibility
-- add README note for make and macos
-- some refactor:
-- renamed `TE_Button` to `TE_MouseBtn`
-- moved implementation of `te_btn_to_str` from `te_dbg.c` to `gfx/te_mousebtn.c`
-- moved `widget.h` and `widget.c` to `include/widgets` and `src/widgets` corresp.
-
+v0.0.8:
+- removed include `gfxdefs.h` from `widget.h`
+- added check null for `te_label_draw`
+- func `TE_String_append_cstr`
+- `TE_InputField` widget
+- `DBG` macro
+- `TE_Vec_remove_range` func
+- incremental compilation 
+- `gfx_draw_line` func

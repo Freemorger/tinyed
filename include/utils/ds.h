@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include "te_dbg.h"
 #include <assert.h>
+#include <stdbool.h>
 
 /// Dynamic array (don't forget to zero initialize!)
 #define TE_VEC_DEFINE(elem_type, name) \
@@ -21,8 +22,14 @@
         if (new_cap <= xs->cap) {\
             return;\
         }\
-        void* tmp = realloc(xs->data, new_cap*sizeof(*xs->data));\
+    \
+        size_t byte_count = new_cap*sizeof(*xs->data);\
+        void* tmp = realloc(xs->data, byte_count);\
         CHECK_NULL(tmp);\
+        if (xs->data == NULL || xs->cap == 0) {\
+            memset(tmp, 0, byte_count);\
+        }\
+    \
         xs->data = tmp;\
         xs->cap  = new_cap;\
         return;\
@@ -30,10 +37,18 @@
 \
     static void name##_push(name* xs, elem_type x) {\
         if (xs->len >= xs->cap) {\
-            if (xs->cap == 0) xs->cap = 32;\
+            bool was_zero = false;\
+            if (xs->cap == 0) { \
+                xs->cap = 32;\
+                was_zero = true;\
+            }\
             else xs->cap *= 2;\
-            void* tmp = realloc(xs->data, xs->cap*sizeof(*xs->data));\
+            size_t byte_count = xs->cap*sizeof(*xs->data);\
+            void* tmp = realloc(xs->data, byte_count);\
             CHECK_NULL(tmp);\
+            if (was_zero) {\
+                memset(tmp, 0, byte_count);\
+            }\
             xs->data = tmp;\
         }\
         xs->data[xs->len++] = x;\
@@ -64,7 +79,7 @@
             name##_push(dst, src->data[i]);\
         }\
     }\
-    static void name##_extend_from(name* dst, elem_type* src, size_t count) {\
+    static void name##_extend_from(name* dst, const elem_type* src, size_t count) {\
         name##_reserve(dst, dst->len + count);\
 \
         for (size_t i = 0; i < count; i++) {\
@@ -85,8 +100,28 @@
     \
         xs->data[idx] = *value;\
         xs->len += 1;\
+    }\
+\
+    static void name##_remove_range(name* xs, size_t start, size_t end) {\
+        if (start >= end || start >= xs->len) {\
+            return;\
+        }\
+        if (end > xs->len)\
+            end = xs->len;\
+    \
+        size_t removed = end - start;\
+    \
+        if (end < xs->len) {\
+            memmove(\
+                &xs->data[start],\
+                &xs->data[end],\
+                (xs->len - end)\
+            );\
+        }\
+    \
+        xs->len -= removed;\
+        xs->data[xs->len] = '\0';\
     }
-
 
 /// Define a queue (circular buf) 
 #define TE_QUEUE_DEFINE(elem_type, name) \

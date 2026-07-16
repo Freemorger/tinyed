@@ -16,3 +16,4 @@ TE_Event gfx_poll(Gfx* gfx);
 TE_MouseBtn to_gfx_btn(Gfx* gfx, unsigned int btn);
 
 void gfx_draw_string(Gfx* gfx, int x, int y, char* text, size_t len);
+void gfx_draw_rect(Gfx* gfx, int x, int y, unsigned int w, unsigned int h);

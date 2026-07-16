@@ -6,7 +6,7 @@
 #include "te_gfx.h"
 #include "utils/ds.h"
 
-#define TE_APP_VERSION "v0.0.7"
+#define TE_APP_VERSION "v0.0.8"
 
 #ifdef DEBUG 
     #define TE_APP_DEBUG true

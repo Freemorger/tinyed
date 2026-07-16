@@ -1,7 +1,8 @@
 #pragma once
 #include "events.h"
-#include "platform/gfxdefs.h"
 #include <stdbool.h>
+
+typedef struct Gfx Gfx;
 
 /// Basic TE Widget struct 
 typedef struct TE_Widget {
