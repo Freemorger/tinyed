@@ -1,9 +1,12 @@
-v0.0.8:
-- removed include `gfxdefs.h` from `widget.h`
-- added check null for `te_label_draw`
-- func `TE_String_append_cstr`
-- `TE_InputField` widget
-- `DBG` macro
-- `TE_Vec_remove_range` func
-- incremental compilation 
-- `gfx_draw_line` func
+v0.0.9:
+- moved to widget tree instead of vec
+- new `TE_Window` widget
+- new `TE_Vec` generic funcs:
+    - `TE_Vec_remove_at` (remove some elem by idx)
+    - `TE_Vec_remove` (remove first occurance of elem by value, only for primitives)
+- new `TE_Widget` methods:
+    - `TE_Widget_destroy` (destroying and cleaning up widget recursively) 
+    - `TE_Widget_dispatch` (handing event to widget and its children)
+    - `TE_Widget_draw_tree` (making widget draw itself and it children)
+- Widget dtors now shouldn't include freeing itself - it's done by `TE_Widget_destroy`
+- added some `const` qualifiers to DS methods arg params 

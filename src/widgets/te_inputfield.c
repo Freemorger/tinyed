@@ -37,8 +37,6 @@ static void te_inputfield_dtor(TE_Widget* w) {
     TE_InputField* infi = container_of(w, TE_InputField, widget);
 
     te_inputfield_free(infi);
-
-    free(infi);
 }
 
 /// Label widget event handler

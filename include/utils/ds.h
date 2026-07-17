@@ -35,7 +35,7 @@
         return;\
     }\
 \
-    static void name##_push(name* xs, elem_type x) {\
+    static void name##_push(name* xs, const elem_type x) {\
         if (xs->len >= xs->cap) {\
             bool was_zero = false;\
             if (xs->cap == 0) { \
@@ -72,7 +72,7 @@
         xs->cap = 0;\
     }\
 \
-    static void name##_extend(name* dst, name* src) {\
+    static void name##_extend(name* dst, const name* src) {\
         name##_reserve(dst, dst->len + src->len);\
 \
         for (size_t i = 0; i < src->len; i++) {\
@@ -87,7 +87,7 @@
         }\
     }\
 \
-    static void name##_insert(name* xs, size_t idx, elem_type* value) {\
+    static void name##_insert(name* xs, size_t idx, const elem_type value) {\
         assert(idx <= xs->len);\
     \
         name##_reserve(xs, xs->len + 1);\
@@ -98,13 +98,13 @@
             (xs->len - idx) * sizeof(*xs->data)\
         );\
     \
-        xs->data[idx] = *value;\
+        xs->data[idx] = value;\
         xs->len += 1;\
     }\
 \
-    static void name##_remove_range(name* xs, size_t start, size_t end) {\
+    static bool name##_remove_range(name* xs, size_t start, size_t end) {\
         if (start >= end || start >= xs->len) {\
-            return;\
+            return false;\
         }\
         if (end > xs->len)\
             end = xs->len;\
@@ -121,6 +121,21 @@
     \
         xs->len -= removed;\
         xs->data[xs->len] = '\0';\
+        return true;\
+    }\
+\
+    static bool name##_remove_at(name* xs, size_t idx) {\
+        return name##_remove_range(xs, idx, idx + 1);\
+    }\
+\
+    static bool name##_remove(name* xs, const elem_type v) {\
+        for (size_t i = 0; i < xs->len; i++) {\
+            if (xs->data[i] == v) {\
+                name##_remove_at(xs, i);\
+                return true;\
+            }\
+        }\
+        return false;\
     }
 
 /// Define a queue (circular buf) 

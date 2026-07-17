@@ -31,8 +31,6 @@ static void te_label_dtor(TE_Widget* widget) {
     TE_Label* lbl = container_of(widget, TE_Label, widget);
 
     te_label_free(lbl);
-
-    free(lbl);
 }
 
 /// Label widget event handler

@@ -13,6 +13,7 @@
 #include <time.h>
 #include "platform/gfxdefs.h"
 #include "widgets/te_label.h"
+#include "widgets/window.h"
 
 TE_App te_app_init(int w, int h) {
     Gfx gfx = gfx_init(w, h);
@@ -20,19 +21,23 @@ TE_App te_app_init(int w, int h) {
     TE_App app = {0};
     app.gfx = gfx;
 
+    TE_Window* wind = te_window_new(w, h);
+    CHECK_NULL(wind);
+    app.root_widget = &wind->widget;
+
     // TODO: prepare basic widgets
 
     TE_Label* lbl = te_label_new("Hello, world!");
     lbl->widget.x = 50;
     lbl->widget.y = 100;
 
-    TE_VecP_Widget_push(&app.widgets, &lbl->widget);
+    TE_VecP_Widget_push(&app.root_widget->children, &lbl->widget);
 
     TE_InputField* infi = te_inputfield_new();
     infi->widget.x = 50;
     infi->widget.y = 200;
 
-    TE_VecP_Widget_push(&app.widgets, &infi->widget);
+    TE_VecP_Widget_push(&app.root_widget->children, &infi->widget);
 
     return app;
 }
@@ -78,23 +83,23 @@ void te_app_run(TE_App* app) {
                     break;
             }
             
-            for (size_t i = 0; i < app->widgets.len; i++) {
-                TE_Widget* widget = app->widgets.data[i];
+            for (size_t i = 0; i < app->root_widget->children.len; i++) {
+                TE_Widget* widget = app->root_widget->children.data[i];
                 // TODO: don't send every event; instead send only:
                 // 1. if focused
                 // 2. specific cases
-                if (widget->event) {
-                    widget->event(widget, &te);
+                if (widget->enabled && widget->visible && widget->event) {
+                    TE_Widget_dispatch(widget, &te);
                 }
             }
 
             te = gfx_poll(&app->gfx);
         }
 
-        for (size_t i = 0; i < app->widgets.len; i++) {
-            TE_Widget* widget = app->widgets.data[i];
-            if (widget->visible) {
-                widget->draw(&app->gfx, widget);
+        for (size_t i = 0; i < app->root_widget->children.len; i++) {
+            TE_Widget* widget = app->root_widget->children.data[i];
+            if (widget && widget->visible) {
+                TE_Widget_draw_tree(widget, &app->gfx);
             }
         }
 
@@ -111,15 +116,16 @@ void te_app_run(TE_App* app) {
         }
     }
 
-    for (size_t i = 0; i < app->widgets.len; i++) {
-        TE_Widget* widget = app->widgets.data[i];
-       
-        if (widget->dtor) {
-            widget->dtor(widget);
-        }
+    for (size_t i = 0; i < app->root_widget->children.len; i++) {
+        TE_Widget* widget = app->root_widget->children.data[i];
+        
+        if (widget)
+            TE_Widget_destroy(widget); 
     }
 
-    TE_VecP_Widget_free(&app->widgets);
+    TE_VecP_Widget_free(&app->root_widget->children);
+
+    TE_Widget_destroy(app->root_widget);
 
     gfx_close(&app->gfx);
 }
