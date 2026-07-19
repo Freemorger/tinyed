@@ -7,7 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "widgets/te_label.h"
+#include "widgets/label.h"
 
 static void te_label_draw(Gfx* gfx, TE_Widget* widget) {
     CHECK_NULL(gfx);
@@ -43,6 +43,8 @@ TE_Label* te_label_new(char* text) {
     TE_Label* l = malloc(sizeof(TE_Label));
     CHECK_NULL(l);
     memset(l, 0, sizeof(TE_Label));
+
+    l->widget.kind = TE_WidgetKind_Label;
 
     l->widget.visible = true;
     l->widget.enabled = true;

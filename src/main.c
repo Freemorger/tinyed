@@ -1,4 +1,5 @@
 #include "events.h"
+#include "platform/gfxdefs.h"
 #include "te_gfx.h"
 #include "te_dbg.h"
 #include "unistd.h"

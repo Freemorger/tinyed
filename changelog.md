@@ -1,12 +1,12 @@
-v0.0.9:
-- moved to widget tree instead of vec
-- new `TE_Window` widget
-- new `TE_Vec` generic funcs:
-    - `TE_Vec_remove_at` (remove some elem by idx)
-    - `TE_Vec_remove` (remove first occurance of elem by value, only for primitives)
-- new `TE_Widget` methods:
-    - `TE_Widget_destroy` (destroying and cleaning up widget recursively) 
-    - `TE_Widget_dispatch` (handing event to widget and its children)
-    - `TE_Widget_draw_tree` (making widget draw itself and it children)
-- Widget dtors now shouldn't include freeing itself - it's done by `TE_Widget_destroy`
-- added some `const` qualifiers to DS methods arg params 
+v0.0.10:
+- updated `gfx_draw_string` param `text` type to `const char*` (was just `char*` before)
+- renamed `te_inputfield` and `te_label` to `inputfield` and `label` in filenames
+- added funcs `TE_Widget_contains`, `TE_Widget_find`
+- added static func `TE_WidgetPredic_under_cursor`
+- basic widget focusing
+- introduced `TE_WidgetKind`
+- added make target `cleanrel` (for getting rid of release build obviously)
+- changed some gfx apis to fit in `TE_Vec2` and `TE_UVec2`
+- new struct: `TE_Gfx_Color`
+- new func: `gfx_draw_rect_ex`
+- added param `bool fill` to `gfx_draw_rect` and `gfx_draw_rect_ex`

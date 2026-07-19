@@ -6,7 +6,7 @@
 #include "te_gfx.h"
 #include "utils/ds.h"
 
-#define TE_APP_VERSION "v0.0.9"
+#define TE_APP_VERSION "v0.0.10"
 
 #ifdef DEBUG 
     #define TE_APP_DEBUG true
@@ -16,6 +16,8 @@
 
 typedef struct TE_App {
     TE_Widget*     root_widget;
+    TE_Widget*     focused_widget;
+
     bool           running;
     Gfx            gfx;
 } TE_App;

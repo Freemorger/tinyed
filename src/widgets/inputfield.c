@@ -1,10 +1,11 @@
-#include "widgets/te_inputfield.h"
+#include "widgets/inputfield.h"
 #include "events.h"
 #include "gfx/keys.h"
 #include "te_dbg.h"
 #include "te_gfx.h"
 #include "utils/etc.h"
 #include "utils/te_string.h"
+#include "utils/types.h"
 #include "utils/utf8.h"
 #include "widgets/widget.h"
 #include <stddef.h>
@@ -17,8 +18,9 @@ static void te_inputfield_draw(Gfx* gfx, TE_Widget* w) {
 
     gfx_draw_rect(
         gfx, 
-        w->x, w->y, 
-        w->w, 30
+        (TE_Vec2) { .x = w->x, .y = w->y }, 
+        (TE_UVec2){ .x = w->w, .y = 30 },
+        false
     );
 
     gfx_draw_string(
@@ -90,6 +92,8 @@ TE_InputField* te_inputfield_new() {
     TE_InputField* l = malloc(sizeof(TE_InputField));
     CHECK_NULL(l);
     memset(l, 0, sizeof(TE_InputField));
+
+    l->widget.kind = TE_WidgetKind_InputField;
 
     l->widget.visible = true;
     l->widget.enabled = true;

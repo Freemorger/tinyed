@@ -2,10 +2,12 @@
 
 #pragma once
 #include "events.h"
+#include "gfx/color.h"
 #include "gfx/keys.h"
 #include <stddef.h>
 #include "platform/gfxdefs.h"
 #include "gfx/te_mousebtn.h"
+#include "utils/types.h"
 
 Gfx gfx_init(int width, int height);
 void gfx_close(Gfx* gfx);
@@ -15,5 +17,8 @@ TE_Event gfx_poll(Gfx* gfx);
 
 TE_MouseBtn to_gfx_btn(Gfx* gfx, unsigned int btn);
 
-void gfx_draw_string(Gfx* gfx, int x, int y, char* text, size_t len);
-void gfx_draw_rect(Gfx* gfx, int x, int y, unsigned int w, unsigned int h);
+void gfx_draw_string(Gfx* gfx, int x, int y, const char* text, size_t len);
+/// Draws a rectangle of default foreground color. `pos` is (x;y) coord, `sizes` is (h;w) size vec
+void gfx_draw_rect(Gfx* gfx, TE_Vec2 pos, TE_UVec2 sizes, bool fill);
+/// Draws a rectangle with additional options. `pos` is (x;y) coord, `sizes` is (w;h) sizes vec
+void gfx_draw_rect_ex(Gfx* gfx, TE_Vec2 pos, TE_UVec2 sizes, bool fill, TE_Gfx_Color col);

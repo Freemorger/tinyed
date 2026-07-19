@@ -26,7 +26,7 @@ RELEASE_OBJDIR = build/release/obj
 DEBUG_OBJS = $(patsubst src/%.c,$(DEBUG_OBJDIR)/%.o,$(INPUT))
 RELEASE_OBJS = $(patsubst src/%.c,$(RELEASE_OBJDIR)/%.o,$(INPUT))
 
-.PHONY: debug release clean cleandbg
+.PHONY: debug release clean cleandbg cleanrel
 
 debug: $(DEBUG_OUTPUT)
 
@@ -56,3 +56,6 @@ clean:
 
 cleandbg:
 	rm -rf build/debug
+
+cleanrel:
+	rm -rf build/release

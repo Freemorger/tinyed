@@ -21,10 +21,14 @@ static void te_window_events(TE_Widget* w, TE_Event* ev) {
     CHECK_NULL(ev);
 }
 
+/// Create a dynamically allocated window widget, with 
+/// `TE_Window.scr_width` and height set to `w` and `h` coresp.
 TE_Window* te_window_new(unsigned int w, unsigned int h) {
     TE_Window* l = malloc(sizeof(TE_Window));
     CHECK_NULL(l);
     memset(l, 0, sizeof(TE_Window));
+
+    l->widget.kind = TE_WidgetKind_Window;
 
     l->widget.visible = true;
     l->widget.enabled = true;

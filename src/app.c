@@ -1,6 +1,8 @@
 #include "editor/util.h"
 #include "app.h"
-#include "widgets/te_inputfield.h"
+#include "gfx/color.h"
+#include "utils/types.h"
+#include "widgets/inputfield.h"
 #include "widgets/widget.h"
 #include "events.h"
 #include "gfx/keys.h"
@@ -12,7 +14,7 @@
 #include <string.h>
 #include <time.h>
 #include "platform/gfxdefs.h"
-#include "widgets/te_label.h"
+#include "widgets/label.h"
 #include "widgets/window.h"
 
 TE_App te_app_init(int w, int h) {
@@ -79,16 +81,38 @@ void te_app_run(TE_App* app) {
                     ); 
                     break;
                 }
+                case TE_ButtonRelease: {
+                    TE_Vec2 cursor = {
+                        .x = te.val.mouse.x,
+                        .y = te.val.mouse.y
+                    }; 
+
+                    TE_Widget* found = TE_Widget_find(
+                        app->root_widget, 
+                        TE_WidgetPredic_under_cursor, 
+                        (void*)&cursor
+                    );
+
+                    if (found != NULL) {
+                        DBG_PRINT("Found!\n");
+                        app->focused_widget = found;
+                    } else {
+                        app->focused_widget = NULL;
+                    }
+
+                    break;
+                }
                 default:
                     break;
             }
             
             for (size_t i = 0; i < app->root_widget->children.len; i++) {
                 TE_Widget* widget = app->root_widget->children.data[i];
-                // TODO: don't send every event; instead send only:
-                // 1. if focused
-                // 2. specific cases
-                if (widget->enabled && widget->visible && widget->event) {
+                if (
+                        widget == app->focused_widget 
+                        && widget->enabled 
+                        && widget->event
+                    ) {
                     TE_Widget_dispatch(widget, &te);
                 }
             }

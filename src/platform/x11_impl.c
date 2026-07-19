@@ -1,6 +1,8 @@
 // xlib (x11) implementation of app's GFX (see `include/te_gfx.h`)
 
 #include "te_gfx.h"
+#include "utils/types.h"
+#include <X11/extensions/Xrender.h>
 
 #ifdef TE_BACKEND_X11
 
@@ -72,11 +74,14 @@ Gfx gfx_init(int width, int height) {
 
     gfx.gc = XCreateGC(gfx.dpy, gfx.w, 0, NULL);
 
+    gfx.visual     = DefaultVisual(gfx.dpy, DefaultScreen(gfx.dpy));
+    gfx.color_map  = DefaultColormap(gfx.dpy, DefaultScreen(gfx.dpy));
+
     gfx.xft_draw = XftDrawCreate(
         gfx.dpy,
         gfx.w,
-        DefaultVisual(gfx.dpy, DefaultScreen(gfx.dpy)),
-        DefaultColormap(gfx.dpy, DefaultScreen(gfx.dpy))
+        gfx.visual,
+        gfx.color_map
     );
 
     CHECK_NULL(gfx.xft_draw);
@@ -102,8 +107,8 @@ Gfx gfx_init(int width, int height) {
 
     XftColorAllocValue(
         gfx.dpy,
-        DefaultVisual(gfx.dpy, DefaultScreen(gfx.dpy)),
-        DefaultColormap(gfx.dpy, DefaultScreen(gfx.dpy)),
+        gfx.visual,
+        gfx.color_map,
         &black,
         &gfx.text_color
     );
@@ -338,7 +343,7 @@ TE_MouseBtn to_gfx_btn(Gfx* gfx, unsigned int btn) {
 }
 
 /// Draw an UTF-8 string.
-void gfx_draw_string(Gfx* gfx, int x, int y, char* text, size_t len) {
+void gfx_draw_string(Gfx* gfx, int x, int y, const char* text, size_t len) {
     CHECK_NULL(gfx);
     CHECK_NULL(gfx->xft_draw);
     CHECK_NULL(&gfx->text_color);
@@ -357,18 +362,67 @@ void gfx_draw_string(Gfx* gfx, int x, int y, char* text, size_t len) {
     XFlush(gfx->dpy);
 }
 
-void gfx_draw_rect(Gfx* gfx, int x, int y, unsigned int w, unsigned int h) {
+void gfx_draw_rect(Gfx* gfx, TE_Vec2 pos, TE_UVec2 sizes, bool fill) {
     CHECK_NULL(gfx);
     CHECK_NULL(gfx->dpy);
     CHECK_NULL(gfx->gc);
 
-    XDrawRectangle(
-        gfx->dpy, 
-        gfx->w, 
-        gfx->gc, 
-        x, y, w, h
-    );
+    if (fill) {
+        XFillRectangle(
+            gfx->dpy, 
+            gfx->w, 
+            gfx->gc, 
+            pos.x, pos.y, 
+            sizes.x, sizes.y
+        );
+    } else {
+        XDrawRectangle(
+            gfx->dpy, 
+            gfx->w, 
+            gfx->gc, 
+            pos.x, pos.y, 
+            sizes.x, sizes.y
+        );
+    }
 }
+
+void gfx_draw_rect_ex(Gfx* gfx, TE_Vec2 pos, TE_UVec2 sizes, bool fill, TE_Gfx_Color col) {
+    CHECK_NULL(gfx);
+    CHECK_NULL(gfx->dpy);
+    CHECK_NULL(gfx->gc);
+
+    XftColor xftcol;
+    XRenderColor xrcol;
+
+    // mul by 257 to scale it for 16 bit color format 
+    xrcol.red   = col.r * 257;
+    xrcol.green = col.g * 257;
+    xrcol.blue  = col.b * 257;
+    xrcol.alpha = col.a * 257;
+
+    if (XftColorAllocValue(gfx->dpy, gfx->visual, gfx->color_map, &xrcol, &xftcol)) {
+
+        if (fill) {
+            XftDrawRect(gfx->xft_draw, &xftcol, (int)pos.x, (int)pos.y, sizes.x, sizes.y);
+        } else {
+            int x = (int)pos.x;
+            int y = (int)pos.y;
+            int w = (int)sizes.x;
+            int h = (int)sizes.y;
+            int thick = 1; 
+
+            XftDrawRect(gfx->xft_draw, &xftcol, x, y, w, thick);  
+            XftDrawRect(gfx->xft_draw, &xftcol, x, y + h - thick, w, thick);         
+            XftDrawRect(gfx->xft_draw, &xftcol, x, y + thick, thick, 
+                    h - (thick * 2)); 
+            XftDrawRect(gfx->xft_draw, &xftcol, x + w - thick, y + thick, thick, 
+                    h - (thick * 2)); 
+        }
+
+        XftColorFree(gfx->dpy, gfx->visual, gfx->color_map, &xftcol);
+    }
+}
+
 
 void gfx_flush(Gfx* gfx) {
     CHECK_NULL(gfx);

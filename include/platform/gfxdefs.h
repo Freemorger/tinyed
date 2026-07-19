@@ -1,6 +1,7 @@
 #pragma once
 
 #include "platform/backends.h"
+#include <X11/X.h>
 
 #ifdef TE_BACKEND_WIN32
     // TODO 
@@ -21,8 +22,10 @@
         XftFont* font;
         XftColor text_color;
 
-        XIM xim;
-        XIC xic;
+        Visual*  visual;
+        Colormap color_map;
+        XIM      xim;
+        XIC      xic;
 
         TE_Queue_Event ev_queue;
     } Gfx;
